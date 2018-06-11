@@ -1,4 +1,4 @@
-# kong-influxdb 
+# kong-api-statitics
 A plugin for Kong to count api calls and save it to InfluxDB
 
 ## Installation

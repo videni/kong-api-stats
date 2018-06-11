@@ -1,4 +1,4 @@
-package = "kong-api-statistics"
+package = "kong-apistats"
 version = "1.0.1-1"
 source = {
   url = "none",
@@ -15,9 +15,9 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ["kong.plugins.influxdb.handler"] = "src/handler.lua",
-    ["kong.plugins.influxdb.schema"] = "src/schema.lua",
-    ["kong.plugins.influxdb.buffer"] = "src/buffer.lua",
-    ["kong.plugins.influxdb.http"] = "src/http.lua"
+    ["kong.plugins.apistats.handler"] = "src/handler.lua",
+    ["kong.plugins.apistats.schema"] = "src/schema.lua",
+    ["kong.plugins.apistats.buffer"] = "src/buffer.lua",
+    ["kong.plugins.apistats.http"] = "src/http.lua"
   }
 }

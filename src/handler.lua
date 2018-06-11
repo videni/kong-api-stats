@@ -1,5 +1,5 @@
 local BasePlugin = require "kong.plugins.base_plugin"
-local buffer = require "kong.plugins.api_statitics.buffer"
+local buffer = require "kong.plugins.apistats.buffer"
 
 local function influxdb_point(ngx, conf)
   local var = ngx.var
@@ -33,17 +33,17 @@ local function flushHandler(premature)
     end
 end
 
-local InfluxDB = BasePlugin:extend()
+local ApiStats = BasePlugin:extend()
 
-InfluxDB.PRIORITY = 992
-InfluxDB.flushHandlerRunning = false
+ApiStats.PRIORITY = 992
+ApiStats.flushHandlerRunning = false
 
-function InfluxDB:new()
-    InfluxDB.super.new(self, "influxdb")
+function ApiStats:new()
+    ApiStats.super.new(self, "influxdb")
 end
 
-function InfluxDB:log(conf)
-    InfluxDB.super.log(self)
+function ApiStats:access(conf)
+    ApiStats.super.log(self)
 
     local ok, err = buffer.init({
         host = conf.host,
@@ -58,7 +58,7 @@ function InfluxDB:log(conf)
         return false
     end
 
-    InfluxDB.setupFlushHandler()
+    ApiStats.setupFlushHandler()
 
     local point = influxdb_point(ngx, conf)
     buffer.buffer(point)
@@ -66,9 +66,9 @@ function InfluxDB:log(conf)
     return true, point
 end
 
-function InfluxDB:setupFlushHandler()
-    if InfluxDB.flushHandlerRunning == true then return end
-    InfluxDB.flushHandlerRunning = true
+function ApiStats:setupFlushHandler()
+    if ApiStats.flushHandlerRunning == true then return end
+    ApiStats.flushHandlerRunning = true
 
     local ok, err = ngx.timer.at(FLUSH_DELAY, flushHandler)
     if not ok then
@@ -76,4 +76,4 @@ function InfluxDB:setupFlushHandler()
     end
 end
 
-return InfluxDB
+return ApiStats

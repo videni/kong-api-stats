@@ -1,4 +1,4 @@
-local http = require 'kong.plugins.api_statitics.http'
+local http = require 'kong.plugins.apistats.http'
 
 local buffer = {}
 local options = {}
