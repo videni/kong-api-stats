@@ -39,10 +39,10 @@ ApiStats.PRIORITY = 992
 ApiStats.flushHandlerRunning = false
 
 function ApiStats:new()
-    ApiStats.super.new(self, "influxdb")
+    ApiStats.super.new(self, "apistats")
 end
 
-function ApiStats:access(conf)
+function ApiStats:log(conf)
     ApiStats.super.log(self)
 
     local ok, err = buffer.init({
