@@ -8,13 +8,13 @@ local function buildMsg(msg)
     local tags = ""
     if msg.tag then
         for k, v in pairs(msg.tag) do
-            tags = tags .. "," .. k .. "=" .. v
+            tags = tags .. "," .. k .. "=" .. "\"".. v .. "\""
         end
     end
 
     local fields = ""
     for k, v in pairs(msg.field) do
-        fields = fields .. k .. "=" .. v .. ","
+        fields = fields .. k .. "=" .. "\""..v .."\"".. ","
     end
     fields = fields:sub(1, -2) --Remove the last ,
 

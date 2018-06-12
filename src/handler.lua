@@ -10,17 +10,18 @@ local function influxdb_point(ngx, conf)
   return {
       measurement = measurement,
       tag = {
-        uri = var.uri,
+        api_name = ctx.api.name,
         tenant_id = authenticated_credential and authenticated_credential.consumer_id
       },
       field = {
-        value = 1
+        uri = ctx.router_matches.uri,
+        raw_uri = var.uri
       },
       timestamp = (ngx.now() * 1000)
     }
 end
 
-local FLUSH_DELAY = 60
+local FLUSH_DELAY = 5
 
 local function flushHandler(premature)
     if premature == true then return end
@@ -45,6 +46,9 @@ end
 function ApiStats:log(conf)
     ApiStats.super.log(self)
 
+    if ngx.ctx.api == nil then return end  --no api found
+    if ngx.var.uri == '/' then return end  --排除“/”
+
     local ok, err = buffer.init({
         host = conf.host,
         port = conf.port,
@@ -61,6 +65,7 @@ function ApiStats:log(conf)
     ApiStats.setupFlushHandler()
 
     local point = influxdb_point(ngx, conf)
+
     buffer.buffer(point)
 
     return true, point
