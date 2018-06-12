@@ -5,7 +5,7 @@ local http = require "resty.http"
 function http.post(msg, params)
     local client = http.new()
     local useSSL = params.proto == 'https'
-    local precision = params.precision or 'ms'
+    local precision = params.precision or 'rfc3339'
 
     local scheme = useSSL and 'https' or 'http'
     local path    = string.format('%s://%s:%s/write', scheme, params.host, params.port)
