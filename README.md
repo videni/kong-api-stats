@@ -1,15 +1,22 @@
-# kong-api-statitics
-A plugin for Kong to count api calls and save it to InfluxDB
+# kong-api-stats
 
-## Installation
-This plugin can be installed via luarocks as follow:
+- [x] 采用influxdb统计调用次数
+    - [x] 处理dynamic path segments。 在infuxdb中存储匹配的API名称
+    - [x] CQ and Retention Policy
+- [x] 统计每个租户每个API每日调用次数
+- [ ] 使用Redis记录每个租户每个API月调用次数
+- [ ] 调用限制。
+    - [ ] 1. 当API调用次数超过月调用限制时。
+    - [ ] 2. 当租户服务过期时。
+    - [ ] 3. 租户API调用权限， 只有具备权限才能调用
+- [ ] API计费设置
+
+##  安装
 ```
-luarocks install kong-api-statitics
+luarocks install kong-api-stats
 ```
 
-## Configuration
-This plugin needs to be added to an existing API route in Kong using a request against the admin api.
-For example:
+##  配置
 
 ```
 $ curl -X POST http://kong:8001/apis/{api}/plugins \
@@ -23,9 +30,9 @@ $ curl -X POST http://kong:8001/apis/{api}/plugins \
     --data "config.client_ip_header: MyHeader"
 ```
 
-| Parameter  | Description |
+| 参数  | 描述 |
 | ------------- | ------------- |
-| `name`  | Name of the plugin: `kong-influxdb`  |
+| `name`  | Name of the plugin: `kong-api-stats`  |
 | `config.host` | InfluxDB host  |
 | `config.port`  | InfluxDB port  |
 | `config.db`  | The db in InfluxDB to push the metrics to  |
