@@ -20,6 +20,7 @@ build = {
     ["kong.plugins.apistats.buffer"] = "src/buffer.lua",
     ["kong.plugins.apistats.http"] = "src/http.lua",
     ["kong.plugins.apistats.daos"] = "src/daos.lua",
+    ["kong.plugins.apistats.redis"] = "src/redis.lua",
     ["kong.plugins.apistats.migrations.postgres"] = "src/postgres.lua"
   }
 }

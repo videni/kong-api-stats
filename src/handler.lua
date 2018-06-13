@@ -1,17 +1,17 @@
 local BasePlugin = require "kong.plugins.base_plugin"
 local buffer = require "kong.plugins.apistats.buffer"
+local redis = require "kong.plugins.apistats.redis"
 
 local function influxdb_point(ngx, conf)
   local var = ngx.var
   local ctx = ngx.ctx
-  local authenticated_credential = ctx.authenticated_credential
   local measurement = conf.measurement or "kong"
 
   return {
       measurement = measurement,
       tag = {
         api_name = ctx.api.name,
-        tenant_id = authenticated_credential and authenticated_credential.consumer_id
+        tenant_id = getCustomerId()
       },
       field = {
         uri = ctx.router_matches.uri,
@@ -43,18 +43,48 @@ function ApiStats:new()
     ApiStats.super.new(self, "apistats")
 end
 
+function ApiStats:access(conf)
+    ApiStats.super.access(self)
+
+    if shouldBypass() then return end
+
+    local red = redis.connect(conf);
+
+    if red == nil then return end
+
+    red:hincrby(getKey(getCustomerId(), ngx.ctx.api.name), os.date("%Y%m%d", os.time())), 1);
+end
+
+local function getKey(customerId, apiName)
+  return 'customer:'..customer..':api_name:'..apiName
+end
+
+local function shouldBypass()
+    -- no api found, and exclude '/'
+    if ngx.ctx.api == nil  or ngx.var.uri == '/' then return false end
+
+    if getCustomerId() == nil return false end
+
+    return true
+end
+
+local function getCustomerId()
+   local authenticated_credential = ngx.ctx.authenticated_credential
+
+   return authenticated_credential ?  authenticated_credential.consumer_id : nil
+end
+
 function ApiStats:log(conf)
     ApiStats.super.log(self)
 
-    if ngx.ctx.api == nil then return end  --no api found
-    if ngx.var.uri == '/' then return end  --排除“/”
+    if shouldBypass() then return end
 
     local ok, err = buffer.init({
-        host = conf.host,
-        port = conf.port,
-        proto = conf.proto,
-        db = conf.db,
-        auth = conf.username and conf.password and conf.username.. ":" ..conf.password or Nil
+        host = conf.influxdb_host,
+        port = conf.influxdb_port,
+        proto = conf.influxdb_proto,
+        db = conf.influxdb_db,
+        auth = conf.influxdb_username and conf.influxdb_password and conf.influxdb_username.. ":" ..conf.influxdb_password or Nil
     })
 
     if (not ok) then
